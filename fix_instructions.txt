@@ -1,0 +1,14 @@
+# Find this section in index_book_to_qdrant.py around line 60-80:
+
+# REPLACE THIS:
+patterns = [
+    r'chapter(\d+)[_-](\d+)',  # chapter1-1, chapter1_1
+    r'(\d+)\.(\d+)',            # 1.1, 2.3
+]
+
+# WITH THIS:
+patterns = [
+    r'chapter(\d+)',            # chapter35, chapter01 (ADDED - MOST IMPORTANT!)
+    r'chapter(\d+)[_-](\d+)',   # chapter1-1, chapter1_1
+    r'(\d+)\.(\d+)',            # 1.1, 2.3
+]

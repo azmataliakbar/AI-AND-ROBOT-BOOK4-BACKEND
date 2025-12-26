@@ -88,6 +88,8 @@ def extract_chapter_info_from_path(filepath: str) -> Dict:
     Extract module and chapter info from file path
     
     Example paths:
+    - docs/module1/chapter01.md → Module 1, Chapter 1
+    - docs/module4/chapter35.md → Module 4, Chapter 35
     - docs/module1/chapter1-1-intro.md → Module 1, Chapter 1.1
     - docs/module2/week3/gazebo-basics.md → Module 2, Chapter 2.3
     """
@@ -108,9 +110,11 @@ def extract_chapter_info_from_path(filepath: str) -> Dict:
     filename = Path(filepath).stem
     chapter_number = ""
     
-    # Try patterns like: chapter1-1, 1.1, week1, etc.
+    # Try patterns like: chapter35, chapter1-1, 1.1, week1, etc.
+    # ✅ FIXED: Added pattern for single chapter numbers (chapter35, chapter01)
     patterns = [
-        r'chapter(\d+)[_-](\d+)',  # chapter1-1, chapter1_1
+        r'chapter(\d+)',            # chapter35, chapter01 - SINGLE NUMBER (MOST COMMON!)
+        r'chapter(\d+)[_-](\d+)',   # chapter1-1, chapter1_1
         r'(\d+)\.(\d+)',            # 1.1, 2.3
         r'week(\d+)',               # week1, week2
     ]
@@ -119,10 +123,11 @@ def extract_chapter_info_from_path(filepath: str) -> Dict:
         match = re.search(pattern, filename, re.IGNORECASE)
         if match:
             groups = match.groups()
-            if len(groups) == 2:
-                chapter_number = f"{groups[0]}.{groups[1]}"
-            elif len(groups) == 1:
-                chapter_number = f"{module_number}.{groups[0]}"
+            # ✅ FIXED: Handle single number properly
+            if len(groups) == 1:
+                chapter_number = groups[0]  # Just use the number: "35"
+            elif len(groups) == 2:
+                chapter_number = f"{groups[0]}.{groups[1]}"  # Use format: "1.1"
             break
     
     return {
@@ -289,6 +294,7 @@ def index_docusaurus_book():
     print(f"✅ Successfully uploaded: {successful_uploads}")
     print(f"📈 Qdrant now has: {vector_db.get_vector_count()} vectors")
     print("=" * 70)
+    print("\n🎉 All done! Your chatbot should now have accurate chapter-specific responses!")
 
 
 # ==================== RUN ====================
@@ -307,4 +313,4 @@ if __name__ == "__main__":
     # Run indexing
     index_docusaurus_book()
     
-    print("\n🎉 All done! Your chatbot should now have accurate chapter-specific responses!")
+    print("\n🎉 Chapter numbers should now be properly extracted!")
